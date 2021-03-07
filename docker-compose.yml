@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+   dbflop:
+     image: mysql:5.7
+     container_name: flop_dbflop
+     volumes:
+       - db_data_flop:/var/lib/mysql
+       - ./mysql_log:/var/log/mysql
+       - ./mysql_conf:/etc/mysql/mysql.conf.d
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: pwd_rootdb
+       MYSQL_DATABASE: flopsecurity
+       MYSQL_USER: flopsecurity
+       MYSQL_PASSWORD: pwd_flopsecurity
+
+   flopsecurity_webserver:
+     depends_on:
+       - dbflop
+     container_name: flop_webserver
+     build: .
+     volumes:
+       - ./webserver:/var/www/html
+     ports:
+       - "80"
+     restart: always
+     environment:
+       MYSQL_DB_HOST: dbflop:3306
+       CATA_DB_USER: flopsecurity
+       CATA_DB_PASSWORD: pwd_flopsecurity
+
+volumes:
+  db_data_flop:
+
+
+networks:
+  default:
+    external:
+      name: reverseproxy
+
