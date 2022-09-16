@@ -1,2 +1,1 @@
-mysql_log/*.log
-webserver/db_time.json
+db_time.json
