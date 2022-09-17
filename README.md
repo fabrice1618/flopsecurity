@@ -9,6 +9,7 @@
     - B3 Installation / vérification openSSH server
     - B4 Installation d'un client SSH sur le Host (optionnel)
     - B5 Connexion SSH
+    - B6 Configuration firewall
 - C Installation et configuration de MySQL
   - C1 Installation MySql et test de l'installation
   - C2 Première connexion au serveur MySQL
@@ -38,6 +39,15 @@
   - F4 Ecrire en Python un brute Force
   - F5 Automatiser toutes les étapes précédentes
 - G Réalisation d'un audit de sécurité
+- H préconisations pour sécuriser un serveur de production
+  - H1 Sécurisation du système Linux
+  - H2 Accès au serveur par SSH
+  - H3 Sécurisation de MySQL
+  - H4 Configuration de apache2 et de PHP
+  - H5 Modification de l'application
+  - H6 Utilisation d'un IDS ? configuration du firewall ?
+  - H7 Chiffrement SSL du serveur apache2
+  - H8 Autres sécurisations possibles
 
 **flopsecurity est une application web possédant des nombreuses failles de sécurité.**
 
@@ -157,8 +167,10 @@ Git permet de gérer les versions de code source. Voir autre document pour les b
 $ ssh fab@192.168.122.198
 ```
 
+### B6 Configuration firewall
 
-Configuration firewall, puis vérification que les ports HTTP, HTTPS, SSH et MySql(port 3306) sont ouverts.
+configuration du firewall puis vérification que les ports HTTP, HTTPS, SSH et MySql(port 3306) sont ouverts.
+
 ```
 $ sudo ufw status
 $ sudo ufw allow 3306
@@ -624,7 +636,7 @@ Nous allons utiliser VsCode comme IDE pour modifier directement les fichiers sur
 
 ### E5 configuration de l'application flopsecurity
 
-- Modifier la connexion BDD dans database.php en fonction des paramètres utilisés pendant votre installation
+- Modifier la connexion BDD dans config.php en fonction des paramètres utilisés pendant votre installation
 
 ## F Test de la sécurité de l'application
 
@@ -636,12 +648,21 @@ Nous allons utiliser VsCode comme IDE pour modifier directement les fichiers sur
 
 ### F2 Réalisation d'une injection SQL
 
-- réaliser une injection SQL (SQLI)
+- s'introduire dans le site en utilisant une injection SQL (SQLI)
+
+Sources d'information:
+- <https://www.youtube.com/watch?v=ciNHn38EyRc>
+- <https://www.youtube.com/watch?v=_jKylhJtPmI>
+
 
 ### F3 Réalisation d'une attaque XSS
 
 - faire executer un script javascript sur la 2 eme page par exemple alert()
-- Modifier le contenu de la pahe HTML
+- Modifier le contenu de la page HTML
+
+Sources d'information:
+- <https://www.youtube.com/watch?v=L5l9lSnNMxg>
+
 
 ### F4 Ecrire en Python un brute Force
 
@@ -659,3 +680,34 @@ Vous utiliserez Selenium pour réaliser automatiquement:
 
 Utilisation de Burp suite
 
+## H préconisations pour sécuriser un serveur de production
+
+### H1 Sécurisation du système Linux
+
+voir les préconisations de l'ANSSI
+Quel serait votre top 5 à mettre en oeuvre en premier lieu ?
+
+### H2 Accès au serveur par SSH
+
+Donner une configuration sécurisée de SSH: quel fichier modifier ? quels paramètres ?
+
+### H3 Sécurisation de MySQL
+
+### H4 Configuration de apache2 et de PHP
+
+- La ré-écriture d'URL a t'elle une influence sur la sécurité ?
+
+### H5 Modification de l'application
+
+Quelles méthodes de développement mettre en place pour :
+- éviter les injections SQL
+- empecher les failles XSS
+- Quid de CSRF ?
+- Empecher une attaque brute force
+- Quel est le top 10 actuel des recommendations à mettre en oeuvre pour sécuriser PHP ?
+
+### H6 Utilisation d'un IDS ? configuration du firewall ?
+
+### H7 Chiffrement SSL du serveur apache2
+
+### H8 Autres sécurisations possibles

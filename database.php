@@ -1,4 +1,5 @@
 <?php 
+require_once("config.php");
 
 define( 'DB_TTL', 300 );    // Durée de vide de la base de données 5 min
 define( 'DB_FILETIME', 'db_time.json' );    // Nom du fichier stockant le timestamp de la remise à zéro de la base
@@ -17,7 +18,8 @@ function openDatabase()
 {
     global $bdd;
 
-    $bdd = new PDO('mysql:host=dbflop;dbname=flopsecurity;charset=utf8', 'flopsecurity', 'pwd_flopsecurity');
+    $db_access = sprintf('mysql:host=%s;dbname=%s;charset=utf8', DB_HOST, DB_NAME);
+    $bdd = new PDO($db_access, DB_USER, DB_PWD);
     $bdd->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 }
 
