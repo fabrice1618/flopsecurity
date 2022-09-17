@@ -1,8 +1,57 @@
 # FLOPSECURITY
-# Installation d'une machine virtuelle VM pour le développement PHP et installation d'une application web possédant des failles de sécurité.
+
+- A Installation d'un Hyperviseur et création d'une machine virtuelle
+  - A1 Installation hyperviseur
+  - A2 Création machine virtuelle
+- B Installation Ubuntu Server
+    - B1 Installation
+    - B2 Mise à jour du système
+    - B3 Installation / vérification openSSH server
+    - B4 Installation d'un client SSH sur le Host (optionnel)
+    - B5 Connexion SSH
+- C Installation et configuration de MySQL
+  - C1 Installation MySql et test de l'installation
+  - C2 Première connexion au serveur MySQL
+  - C3 Configuration du serveur MySQL
+  - C4 Utilisateur MySQL: root
+  - C5 Utilisateur MySQL: dba
+  - C6 Création de la base de données et de l'utilisateur applicatif
+  - C7 Test de la base de données applicative
+  - C8 Installation MySQL Workbench
+  - C9 Sauvegarde de toutes les bases de données
+  - C10 Sauvegarde de la base de données flopsecurity
+  - C11 Restauration de la base de données flopsecurity
+- D Installation apache 2 et PHP 8
+  - D1 Installation des paquets
+  - D2 Configuration PHP développement  
+  - D3 Vérification de la configuration de PHP  
+- E Installation de l'application flopsecurity
+  - E1 Installation de Git sur le serveur LAMP
+  - E2 Clonage de l'application
+  - E3 test accès à l'application flopsecurity
+  - E4 Connexion à partir de VS Code
+  - E5 configuration de l'application flopsecurity
+- F Test de la sécurité de l'application
+  - F1 Premières requètes SQL
+  - F2 Réalisation d'une injection SQL
+  - F3 Réalisation d'une attaque XSS
+  - F4 Ecrire en Python un brute Force
+  - F5 Automatiser toutes les étapes précédentes
+- G Réalisation d'un audit de sécurité
+
+**flopsecurity est une application web possédant des nombreuses failles de sécurité.**
+
+Ce TP permet l'installation d'un serveur LAMP en version développement. Cette configuration ne peut pas être utilisée pour un serveur de production.
+
+LAMP |
+---------|
+ **L**inux |
+ **A**pache | 
+ **M**ySQL |
+ **P**HP |
 
 
-## Configuration de base. Installation Hyperviseur
+## A Installation d'un Hyperviseur et création d'une machine virtuelle
 
 - Type-1, native or bare-metal hypervisors:
 
@@ -23,13 +72,14 @@ These hypervisors run on a conventional operating system (OS) just as other comp
 exemples: VirtualBox, QEMU, Proxmox
 Utilisation : développement, virtualisation d'applications/serveurs
 
-Type 2 |
----------|
- Operating System |
- Hypervisor |
- Operating System |
+Type 2 | Système
+---------|---------
+ Operating System | Guest
+ Hypervisor | 
+ Operating System | Host
  Hardware |
 
+### A1 Installation hyperviseur
 
 Solutions disponibles(liste non exhaustive):
 - GNU/Linux:
@@ -41,26 +91,33 @@ Solutions disponibles(liste non exhaustive):
   - [virtualbox](https://www.virtualbox.org/)
   - vmware (logiciel commercial)
 
-
-## Installation VM avec Ubuntu desktop 22.04
-
-Note: plusieurs distribution sont disponibles. par exemple debian.
-
-Télécharger l'ISO ubuntu-22.04-live-server-amd64.iso.
+### A2 Création machine virtuelle
 
 Configuration de la machine virtuelle:
 - 1 core ou plus
 - RAM de 2 Go ou plus
 - HDD 15 Go (25 Go recommandés)
 - Configuration réseau bridge.
-- installation minimale 
-  - pendant l'installation bien configurer le clavier en FR
-  - penser à cocher openssh server pour installation
+
+## B Installation Ubuntu Server 22.04
+
+### B1 Installation
+Note: plusieurs distribution sont disponibles. par exemple debian. Il est ausssi possible d'utliser ubuntu desktop 22.04 si vous souhaitez tester les applications graphiques.
+
+Télécharger l'ISO ubuntu-22.04-live-server-amd64.iso.
+
+- installation minimale
+- pendant l'installation bien configurer le clavier en FR
+- penser à cocher openssh server pour installation
+
+### B2 Mise à jour du système
 
 Remise à jour de tous les logiciels installés sur la distribution linux. Il est indispensable de remettre à jour votre distribution linux le plus souvent possible. Les mises à jour de sécurité sont disponbibles très rapidement.
 ```
 $ sudo apt update && sudo apt upgrade -y
 ```
+
+### B3 Installation / vérification openSSH server
 
 - Install openssh server et vérification. Dans netstat, si le port 22 ssh est en mode LISTEN, le serveur fonctionne.
 ```
@@ -79,10 +136,12 @@ $ sudo ufw enable
 $ sudo ufw allow ssh
 ```
 
-- première connexion SSH à partir de votre machine. Noter l'adresse IP de la VM.
+- Noter l'adresse IP de la VM.
 ```bash
 $ ip a
 ```
+
+### B4 Installation d'un client SSH sur le Host (optionnel)
 
 **Sur le host:** installation de git
 
@@ -90,6 +149,8 @@ $ ip a
 
 Git permet de gérer les versions de code source. Voir autre document pour les bases de git.
 
+
+### B5 Connexion SSH
 
 **Sur le host:** par exemple avec git bash. 192.168.122.198 étant l'adresse IP de la VM. Il est aussi possible d'utiliser cmd.exe ou powershell
 ```bash
@@ -120,9 +181,12 @@ To                         Action      From
 
 ```
 
-## Installation MySQL
+## C Installation et configuration de MySQL
 
-### Installation MySql et test de l'installation
+Il est aussi possible d'utiliser MariaDB en open source.
+
+### C1 Installation MySql et test de l'installation
+
 ```
 $ sudo apt install mysql-server
 $ systemctl status mysql.service
@@ -159,7 +223,7 @@ la commande mysqladmin permet de nombreuses fonctions d'administration du serveu
 $ mysqladmin --help
 ```
 
-### Première connexion au serveur MySQL
+### C2 Première connexion au serveur MySQL
 
 Affichage des principales informations à propos du serveur MySQL. Liste des bases de données, droits d'accès attribués pendant l'installation.
  
@@ -190,7 +254,9 @@ GRANT PROXY ON ''@'' TO 'root'@'localhost' WITH GRANT OPTION
 mysql> exit
 ```
 
-### Activation des logs de MySQL et permettre l'accès au serveur MySQL depuis l'extérieur
+### C3 Configuration du serveur MySQL
+
+Activation des logs de MySQL et permettre l'accès au serveur MySQL depuis l'extérieur
 
 Activer tous les logs sur notre base de données. Cela nous permettra d'avoir un suivi de ce qu'il se passe sur le serveur. Ces options sont utiles sur des machines de développement. Notament: cela permettra de détecter des erreurs de conceptions de l'application.
 
@@ -199,10 +265,9 @@ Activer les logs dans les cas suivants:
 - le slow query log pour indiquer toutes les requetes prennant plus de 2 secondes 
 - les requetes n'utilisant pas d'indexes. 
 
-Nous autorisons aussi l'accès au serveur MySQL hors de la VM. les paramètres bind-address permmetent à des applications installées sur la machine host puissent accéder à la base de données. Accès possible aussi par le LAN.
+Nous autorisons aussi l'accès au serveur MySQL hors de la VM (à partir du guest). les paramètres bind-address permmetent à des applications installées sur la machine host puissent accéder à la base de données. Accès possible aussi par le LAN.
 
 > Pour ma part, j'utilise l'editeur vi. Vous pouvez remplacer vi par nano qui est probablement plus simple pour une première approche du système Linux.
-
 
 
 ```
@@ -238,15 +303,20 @@ $ ls -ltr
 -rw-r----- 1 mysql adm   5929 Dec 14 00:55 error.log
 ```
 
-### Configuration des utilisateurs de MySQL
+### C4 Utilisateur MySQL: root
 
-Habituellement, nous n'utilisons par le user root pour se connecter à la base de données. C'est un choix pas très sûr de conserver les accès root sur le serveur MySQL. Pour cet exercice, nous conserverons les accès root dans un premier temps. Puis à la fin de la configuration, nous sécuriserons l'installation de MySQL et nous désactiverons l'accès root.
+Par défaut, mysql crée un utilisateur root qui n'a pas de mot de passe. Habituellement, nous n'utilisons pas le user root pour se connecter à la base de données. C'est un choix pas très sûr de conserver les accès root sur le serveur MySQL. Pour cet exercice, nous conserverons les accès root dans un premier temps. Puis à la fin de la configuration, nous sécuriserons l'installation de MySQL et nous désactiverons l'accès root.
 
 Sécurisation de la base de données : https://mariadb.com/kb/en/mysql_secure_installation/ C'est une procédure permettant de sécuriser la base de donnée. Elle est très utile sur un serveur de production.
 
-Pour réaliser l'administration des bases de données, nous utilisons un user spécifique pour cette tâche généralement appelé dba (DataBase Administrator). Cet utilisateur doit avoir tous les accès sur toutes les bases de données et tous les privillèges. En général, les modifications de structure de la base de données sont faites avec cet utilisateur, en plus des sauvegardes et des restaurations.
+### C5 Utilisateur MySQL: dba
 
-Création de l'utilisateur dba dans mysql pour un accès local. Il est possible de créer aussi un accès pour une administration à distance (par exemple en utilisant MySQL workbench).
+Pour réaliser l'administration des bases de données, nous utilisons un user spécifique pour cette tâche, appelé dba par exemple (DataBase Administrator). Cet utilisateur doit avoir tous les accès sur toutes les bases de données et tous les privillèges. En général, les modifications de structure de la base de données sont faites avec cet utilisateur, en plus des sauvegardes et des restaurations.
+
+Création de l'utilisateur dans mysql:
+- dba pour un accès local
+- dba pour administration à distance (par exemple en utilisant MySQL workbench)
+ 
 ```
 $ sudo mysql
 
@@ -271,11 +341,13 @@ mysql> SHOW GRANTS FOR 'dba'@'localhost';
 mysql> exit;
 ```
 
-### Création de la base de données flopsecurity et de l'utilisateur associé
+### C6 Création de la base de données et de l'utilisateur applicatif
 
-Un autre utilisateur est créé pour se connecter à la base de données pour le compte de l'application. Pour améliorer la sécurité, on limite les privilèges de cet utilisateur. Cet utilisateur ne peut pas utiliser les autres bases de données présentes sur le serveur.
+Un autre utilisateur est créé pour se connecter à la base de données pour le compte de l'application. Pour améliorer la sécurité, on limite les privilèges de cet utilisateur. Cet utilisateur ne peut pas utiliser les autres bases de données présentes sur le serveur. On peut aussi limiter les requêtes SQL pouvant être executées (SELECT, INSERT, DELETE et UPDATE).
 
-On se connecte à MySQL comme utilisateur dba pour la création de la base de données et la création de l'utilisateur flopsecurity.
+On se connecte à MySQL comme utilisateur _dba_ pour la création de la base de données et la création de l'utilisateur flopsecurity.
+
+_Dans le cadre de cet exercice, nous ne limiterons pas les opérations possibles, car nous testerons la possibilités de supprimer les tables de la base de données grâce à une injection SQL_
 
 ```
 $ mysql -u dba -p
@@ -326,6 +398,8 @@ mysql> SHOW GRANTS FOR 'flopsecurity'@'localhost';
 
 mysql> exit;
 ```
+### C7 Test de la base de données applicative
+
 Test de la connexion de l'utilisateur flopsecurity à la base de données flopsecurity. Initialement, la base de données ne contient auncunes tables.
 ```
 $ mysql -u flopsecurity -p
@@ -349,7 +423,9 @@ Empty set (0.01 sec)
 mysql> exit;
 ```
 
-### Installation MySQL Workbench
+### C8 Installation MySQL Workbench
+
+MySQL Workbench est une interface graphique permettant de réaliser des requêtes sur la base de données et d'administrer la base.
 
 - Installation custom:
   - MySQL Workbench
@@ -361,7 +437,7 @@ mysql> exit;
   
 Par exemple...
 
-### Sauvegarde des bases de données
+### C9 Sauvegarde de toutes les bases de données
 
 Sauvegarde de toutes les bases de données
 ```
@@ -374,7 +450,8 @@ $ ls -ltr
 $ zcat all-databases.tar.gz
 ```
 
-Sauvegarde de la base de données flopsecurity
+### C10 Sauvegarde de la base de données flopsecurity
+
 ```
 $ mysqldump -u dba -p flopsecurity | gzip -9 > flopsecurity.tar.gz
 Enter password:
@@ -385,15 +462,19 @@ $ ls -ltr
 $ zcat flopsecurity.tar.gz
 ```
 
-### Restauration de la base de données
+### C11 Restauration de la base de données flopsecurity
 
 Quelle est la ou les commandes permettant de restaurer la base de données ?
 
 
-## Installation apache 2 et PHP 8
+## D Installation apache 2 et PHP 8
 
-Vous devriez avoir PHP8 installé.
+### D1 Installation des paquets
 
+Installation :
+- apache2 avec le module PHP pour apache2
+- PHP
+- Le driver MySQL pour PHP
 
 ```
 $ sudo apt install apache2 php libapache2-mod-php php-mysql
@@ -429,51 +510,46 @@ $ ls
 index.html
 ```
 
-Dans un navigateur, aller à l'adresse 192.168.1.23 (adapter à votre adresse IP) et vérifier que vous avez accès à la page par défaut de Apache 2.
+Dans un navigateur, aller à l'adresse 192.168.122.29 (adapter à votre adresse IP) et vérifier que vous avez accès à la page par défaut de Apache 2.
 
-### Configuration PHP developpement
+### D2 Configuration PHP developpement
+
+Recherche de l'emplacement des fichiers de configuration de PHP. L'installation de base contient un fichier de configuration à utiliser sur une machine de production et un autre sur une machine de développement.
 
 ```
-$ find / -name 'php.ini-development' -print 2> /dev/null
-$ cd /etc/php/8.1/cli
-$ ls
-conf.d  php.ini
-$ sudo cp /usr/lib/php/7.4/php.ini-development php.ini
+$ FICHIERDEV=`find / -name 'php.ini-development' -print 2> /dev/null`
+$ echo $FICHIERDEV
+/usr/lib/php/7.4/php.ini-development
+$ FICHIERPROD=`find / -name 'php.ini-production' -print 2> /dev/null`
+$ echo $FICHIERPROD
+/usr/lib/php/7.4/php.ini-production
+diff $FICHIERDEV $FICHIERPROD
+```
+
+D'après les différences affichées: quelles configuration sont activées dans la version développement qui simplifie de développement ou son analyse de fonctionnement ?
+- ......
+- ......
+
+Mise en place de la configuration de développement pour le module PHP. Puis faire un revue du fichier.
+
+```
+$ FICHIERCONF=`find / -name 'php.ini' -print 2> /dev/null | grep apache2`
+$ echo $FICHIERCONF
+/etc/php/7.4/apache2/php.ini
+
+$ sudo cp $FICHIERDEV $FICHIERCONF
 $ vi php.ini
 ```
 
-## Copie de fichiers entre poste de travail et VM
+### D3 Vérification de la configuration de PHP
 
-Sur poste de travail :
-```bash
-$ cd /c/code
-$ git clone https://github.com/fabrice1618/flop-security.git
-$ cd flop-security/webserver
-$ ls
-README.md  cheat.md  database.php  favicon.ico  home.php  index.php  log.php
-
-$ scp *.* fab@192.168.1.22:
-fab@192.168.1.22's password:
-README.md                                     100%  514    51.9KB/s   00:00
-cheat.md                                      100%  284   102.6KB/s   00:00
-database.php                                  100% 3393     1.1MB/s   00:00
-favicon.ico                                   100% 5430   749.4KB/s   00:00
-home.php                                      100% 2852   664.5KB/s   00:00
-index.php                                     100% 2744   631.4KB/s   00:00
-log.php                                       100% 4441     1.1MB/s   00:00
-
-```
-
+Créer un script PHP permettant d'afficher la configuration de PHP. Le script sera placé dans le dossier /var/www/html avec le nom phpinfo.php
 
 ```bash
 $ cd /var/www/html
 $ ls -l
 -rw-r--r-- 1 root root 10918 Sep 15 08:32 index.html
-$ sudo rm index.html
-$ sudo mv ~/* .
-
-$ sudo vi phpinfo.php
-[sudo] password for fab:
+$ vi phpinfo.php
 $ cat phpinfo.php
 <?php
 
@@ -481,30 +557,105 @@ phpinfo();
 
 ```
 
-### Connexion à partir de VS Code
+Bien vérifier les droits d'accès du fichier pour qu'il soit lisible par le processus apache.
 
+- Puis avec votre navigateur accéder à la page http://192.168.122.29/phpinfo.php
+- Vérifier la configuration de MySQL et de PDO.
+- De nombreuses variables de "PHP Variables" sont très utiles.
+
+
+## E Installation de l'application flopsecurity
+
+### E1 Installation de Git sur le serveur LAMP
+
+C'est pratique sur un serveur de développement. A éviter sur un serveur de production.
+
+```bash
+$ sudo apt install git
+$ git --version
+git version 2.25.1
+```
+
+### E2 Clonage de l'application
+
+L'application est disponible sur github à l'adresse:
+
+```bash
+$ cd /var/www/html
+$ git clone https://github.com/fabrice1618/flopsecurity .
+$ ls
+README.md  cheat.md  database.php  favicon.ico  home.php  index.php  log.php
+$ rm index.html phpinfo.php
+```
+
+### E3 test accès à l'application flopsecurity
+
+Dans le navigateur http://192.168.122.29/
+
+En cas d'erreur, vous pouvez consulter les logs apache suivants. Les fichiers modifiés le plus récement sont en bas. 
+- Le fichier access recense tous les accès
+- Le fichier error les erreurs
+
+```bash
+$ cd /var/log/apache2/
+$ ls -ltr
+-rw-r----- 1 root adm    0 oct.   6  2021 other_vhosts_access.log
+-rw-r----- 1 root adm 2556 sept. 17 08:20 error.log
+-rw-r----- 1 root adm  685 sept. 17 08:20 access.log
+```
+
+Les logs MySQL sont disponibles à :
+```bash
+$ cd /var/log/mysql
+$ ls -ltr
+-rw-r----- 1 mysql adm  717 sept. 17 06:40 mysql-slow.log
+-rw-r----- 1 mysql adm 3567 sept. 17 06:40 query.log
+-rw-r----- 1 mysql adm 4133 sept. 17 06:40 error.log
+```
+
+### E4 Connexion à partir de VS Code
+
+Nous allons utiliser VsCode comme IDE pour modifier directement les fichiers sur le serveur.
+
+- Installation de vsCode sur le système host
 - Installation de l'extension remote-SSH
 - Ajout d'une connexion vers le serveur (^ shift P)ajouter un nouvel hôte SSH
 - se connecter à l'hôte créé
 
-### Mise en route de l'application flopsecurity
+### E5 configuration de l'application flopsecurity
 
-- Modifier la connexion BDD dans database.php en fonction des paramètres utilisés pendant l'installation
-- 
+- Modifier la connexion BDD dans database.php en fonction des paramètres utilisés pendant votre installation
 
-### Premières requètes SQL
+## F Test de la sécurité de l'application
+
+
+### F1 Premières requètes SQL
 
 - Affichage du contenu de la table contenant les utilisateurs
 - Déterminer la requète permettant d'afrficher les informations pour un utilisateur
 
-### Test de la sécurité de l'application
+### F2 Réalisation d'une injection SQL
 
 - réaliser une injection SQL (SQLI)
-- réaliser une attaque XSS
 
-En option:
+### F3 Réalisation d'une attaque XSS
+
+- faire executer un script javascript sur la 2 eme page par exemple alert()
+- Modifier le contenu de la pahe HTML
+
+### F4 Ecrire en Python un brute Force
+
+Vous pouvez utiliser un autre langage.
+
 - réaliser un programme (par exemple en python) pour réaliser un brute-force sur le mot de passe d'un des utilisateurs
 
-### Réalisation d'un audit de sécurité
+### F5 Automatiser toutes les étapes précédentes
+
+Vous utiliserez Selenium pour réaliser automatiquement:
+- injection SQL pour entrer dans le site
+- injection XSS pour modifier la page HTML et inscrire "Hacked by Selenium"
+
+## G Réalisation d'un audit de sécurité
 
 Utilisation de Burp suite
+
