@@ -1,5 +1,6 @@
 # FLOPSECURITY
 
+- @ Processus d'installation
 - A Installation d'un Hyperviseur et création d'une machine virtuelle
   - A1 Installation hyperviseur
   - A2 Création machine virtuelle
@@ -60,6 +61,20 @@ LAMP |
  **M**ySQL |
  **P**HP |
 
+## @ Processus d'installation
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Installation Hyperviseur]
+    B --> C[Création VM]
+    C --> D[Installation et MAJ Ubuntu Server]
+    D --> F{{OpenSSH server installé?}}
+    F -- No --> G[Installer openSSH Server]
+    G --> H[Activer firewall]
+    F -- Yes --> H[Activer et configurer firewall]
+    H --> I[Connexion SSH]
+    I --> J[etc...]
+```
 
 ## A Installation d'un Hyperviseur et création d'une machine virtuelle
 
