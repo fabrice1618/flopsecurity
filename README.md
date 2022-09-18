@@ -61,20 +61,16 @@ LAMP |
  **M**ySQL |
  **P**HP |
 
-## @ Processus d'installation
+## Partie A: Processus d'installation
 
 ```mermaid
 flowchart TD
-    A[Start] --> B[Installation Hyperviseur]
-    B --> C[Création VM]
-    C --> D[Installation et MAJ Ubuntu Server]
-    D --> F{{OpenSSH server installé?}}
-    F -- No --> G[Installer openSSH Server]
-    G --> H[Activer firewall]
-    F -- Yes --> H[Activer et configurer firewall]
-    H --> I[Connexion SSH]
-    I --> J[etc...]
+    A[Start] --> B[Installation Hyperviseur]:::host
+    B --> C[Création VM]:::host
+    C --> K[End]
+    classDef host fill:#f96;
 ```
+    
 
 ## A Installation d'un Hyperviseur et création d'une machine virtuelle
 
@@ -123,6 +119,21 @@ Configuration de la machine virtuelle:
 - RAM de 2 Go ou plus
 - HDD 15 Go (25 Go recommandés)
 - Configuration réseau bridge.
+
+## Partie B: Processus d'installation
+
+```mermaid
+flowchart TD
+    A[Start] --> D[Installation et MAJ Ubuntu Server]
+    D --> F{{OpenSSH server installé?}}
+    F -- No --> G[Installer openSSH Server]
+    G --> H[Activer firewall]
+    F -- Yes --> H[Activer et configurer firewall]
+    H --> I[Installation client SSH]:::host
+    I --> J[Connexion SSH]:::host
+    J --> K[End]
+    classDef host fill:#f96;
+```
 
 ## B Installation Ubuntu Server 22.04
 
@@ -206,6 +217,22 @@ To                         Action      From
 3306 (v6)                  ALLOW IN    Anywhere (v6)
 80/tcp (v6)                ALLOW IN    Anywhere (v6)
 
+```
+
+
+## Partie C: Processus d'installation
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Installation et configuration MySql]
+    B --> C[Utilisateur MySQL: root]
+    C --> D[Utilisateur MySQL: dba]
+    D --> E[Création BDD et user applicatif]
+    E --> F[Installation MySQL Workbench]:::host
+    F --> G[Sauvegarde]
+    G --> H[Restauration]
+    H --> K[End]
+    classDef host fill:#f96;
 ```
 
 ## C Installation et configuration de MySQL
@@ -494,6 +521,19 @@ $ zcat flopsecurity.tar.gz
 Quelle est la ou les commandes permettant de restaurer la base de données ?
 
 
+
+## Partie D: Processus d'installation
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Installation apache2 et PHP8]
+    B --> C[configuration développement]
+    C --> D[Tests]:::host
+    D --> K[End]
+    classDef host fill:#f96;
+```
+
+
 ## D Installation apache 2 et PHP 8
 
 ### D1 Installation des paquets
@@ -590,6 +630,18 @@ Bien vérifier les droits d'accès du fichier pour qu'il soit lisible par le pro
 - Vérifier la configuration de MySQL et de PDO.
 - De nombreuses variables de "PHP Variables" sont très utiles.
 
+## Partie E: Processus d'installation
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Installation Git]
+    B --> C[Clonage application]
+    C --> D[Connexion VsCode]:::host
+    D --> E[Configuration application]
+    E --> F[Tests]:::host
+    F --> K[End]
+    classDef host fill:#f96;
+```
 
 ## E Installation de l'application flopsecurity
 
