@@ -8,8 +8,9 @@
     - B1 Installation
     - B2 Mise à jour du système
     - B3 Installation / vérification openSSH server
-    - B4 Connexion SSH
-    - B5 Configuration firewall
+    - B4 Installation d'un client SSH sur le Host (optionnel)
+    - B5 Connexion SSH
+    - B6 Configuration firewall
 - C Installation et configuration de MySQL
   - C1 Installation MySql et test de l'installation
   - C2 Première connexion au serveur MySQL
@@ -19,6 +20,9 @@
   - C6 Création de la base de données et de l'utilisateur applicatif
   - C7 Test de la base de données applicative
   - C8 Installation MySQL Workbench
+  - C9 Sauvegarde de toutes les bases de données
+  - C10 Sauvegarde de la base de données flopsecurity
+  - C11 Restauration de la base de données flopsecurity
 - D Installation apache 2 et PHP 8
   - D1 Installation des paquets
   - D2 Configuration PHP développement  
@@ -35,15 +39,16 @@
   - F3 Réalisation d'une attaque XSS
   - F4 Ecrire en Python un brute Force
   - F5 Automatiser toutes les étapes précédentes
-- G préconisations pour sécuriser un serveur de production
-  - G1 Sécurisation du système Linux
-  - G2 Accès au serveur par SSH
-  - G3 Sécurisation de MySQL
-  - G4 Configuration de apache2 et de PHP
-  - G5 Modification de l'application
-  - G6 Utilisation d'un IDS ? configuration du firewall ?
-  - G7 Chiffrement SSL du serveur apache2
-  - G8 Autres sécurisations possibles
+- G Réalisation d'un audit de sécurité
+- H préconisations pour sécuriser un serveur de production
+  - H1 Sécurisation du système Linux
+  - H2 Accès au serveur par SSH
+  - H3 Sécurisation de MySQL
+  - H4 Configuration de apache2 et de PHP
+  - H5 Modification de l'application
+  - H6 Utilisation d'un IDS ? configuration du firewall ?
+  - H7 Chiffrement SSL du serveur apache2
+  - H8 Autres sécurisations possibles
 
 **flopsecurity est une application web possédant des nombreuses failles de sécurité.**
 
@@ -112,8 +117,8 @@ Solutions disponibles(liste non exhaustive):
 Configuration de la machine virtuelle:
 - 1 core ou plus
 - RAM de 2 Go ou plus
-- HDD 25 Go minimum
-- Configuration réseau bridge (pont).
+- HDD 15 Go (25 Go recommandés)
+- Configuration réseau bridge.
 
 ## Partie B: Processus d'installation
 
@@ -130,12 +135,12 @@ flowchart TD
     classDef host fill:#f96;
 ```
 
-## B Installation Ubuntu Server 24.04
+## B Installation Ubuntu Server 22.04
 
 ### B1 Installation
-Note: plusieurs distribution sont disponibles. par exemple debian. Il est ausssi possible d'utliser ubuntu desktop 24.04 si vous souhaitez tester les applications graphiques.
+Note: plusieurs distribution sont disponibles. par exemple debian. Il est ausssi possible d'utliser ubuntu desktop 22.04 si vous souhaitez tester les applications graphiques.
 
-Télécharger l'ISO ubuntu-24.04-live-server-amd64.iso.
+Télécharger l'ISO ubuntu-22.04-live-server-amd64.iso.
 
 - installation minimale
 - pendant l'installation bien configurer le clavier en FR
@@ -172,14 +177,23 @@ $ sudo ufw allow ssh
 $ ip a
 ```
 
-### B4 Connexion SSH
+### B4 Installation d'un client SSH sur le Host (optionnel)
+
+**Sur le host:** installation de git
+
+[Installation de git](https://git-scm.com/)
+
+Git permet de gérer les versions de code source. Voir autre document pour les bases de git.
+
+
+### B5 Connexion SSH
 
 **Sur le host:** par exemple avec git bash. 192.168.122.198 étant l'adresse IP de la VM. Il est aussi possible d'utiliser cmd.exe ou powershell
 ```bash
 $ ssh fab@192.168.122.198
 ```
 
-### B5 Configuration firewall
+### B6 Configuration firewall
 
 configuration du firewall puis vérification que les ports HTTP, HTTPS, SSH et MySql(port 3306) sont ouverts.
 
@@ -477,6 +491,36 @@ MySQL Workbench est une interface graphique permettant de réaliser des requête
   
 Par exemple...
 
+### C9 Sauvegarde de toutes les bases de données
+
+Sauvegarde de toutes les bases de données
+```
+$ mysqldump -u dba -p --all-databases | gzip -9 > all-databases.tar.gz
+Enter password:
+
+$ ls -ltr
+-rw-rw-r-- 1 fab fab 241440 Dec 14 01:56 all-databases.tar.gz
+
+$ zcat all-databases.tar.gz
+```
+
+### C10 Sauvegarde de la base de données flopsecurity
+
+```
+$ mysqldump -u dba -p flopsecurity | gzip -9 > flopsecurity.tar.gz
+Enter password:
+$ ls -ltr
+-rw-rw-r-- 1 fab fab 241440 Dec 14 01:56 all-databases.tar.gz
+-rw-rw-r-- 1 fab fab    458 Dec 14 02:00 flopsecurity.tar.gz
+
+$ zcat flopsecurity.tar.gz
+```
+
+### C11 Restauration de la base de données flopsecurity
+
+Quelle est la ou les commandes permettant de restaurer la base de données ?
+
+
 
 ## Partie D: Processus d'installation
 
@@ -615,14 +659,8 @@ git version 2.25.1
 
 L'application est disponible sur github à l'adresse:
 
-- Avant la commande git clone, il faut effacer tous les fichiers présents dans le dossier
-- Ne pas oublier le **point** à la fin de la commande git clone
-
 ```bash
 $ cd /var/www/html
-$ ls -al
-$ rm *
-$ rm .*
 $ git clone https://github.com/fabrice1618/flopsecurity .
 $ ls
 README.md  cheat.md  database.php  favicon.ico  home.php  index.php  log.php
@@ -705,24 +743,28 @@ Vous utiliserez Selenium pour réaliser automatiquement:
 - injection SQL pour entrer dans le site
 - injection XSS pour modifier la page HTML et inscrire "Hacked by Selenium"
 
-## G préconisations pour sécuriser un serveur de production
+## G Réalisation d'un audit de sécurité
 
-### G1 Sécurisation du système Linux
+Utilisation de Burp suite
+
+## H préconisations pour sécuriser un serveur de production
+
+### H1 Sécurisation du système Linux
 
 voir les préconisations de l'ANSSI
 Quel serait votre top 5 à mettre en oeuvre en premier lieu ?
 
-### G2 Accès au serveur par SSH
+### H2 Accès au serveur par SSH
 
 Donner une configuration sécurisée de SSH: quel fichier modifier ? quels paramètres ?
 
-### G3 Sécurisation de MySQL
+### H3 Sécurisation de MySQL
 
-### G4 Configuration de apache2 et de PHP
+### H4 Configuration de apache2 et de PHP
 
 - La ré-écriture d'URL a t'elle une influence sur la sécurité ?
 
-### G5 Modification de l'application
+### H5 Modification de l'application
 
 Quelles méthodes de développement mettre en place pour :
 - éviter les injections SQL
@@ -731,8 +773,8 @@ Quelles méthodes de développement mettre en place pour :
 - Empecher une attaque brute force
 - Quel est le top 10 actuel des recommendations à mettre en oeuvre pour sécuriser PHP ?
 
-### G6 Utilisation d'un IDS ? configuration du firewall ?
+### H6 Utilisation d'un IDS ? configuration du firewall ?
 
-### G7 Chiffrement SSL du serveur apache2
+### H7 Chiffrement SSL du serveur apache2
 
-### G8 Autres sécurisations possibles
+### H8 Autres sécurisations possibles
